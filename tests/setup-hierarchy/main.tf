@@ -45,12 +45,15 @@ module "gitlab_group_level_5" {
 }
 
 locals {
+  group_default_settings = {
+    visibility_level = "private"
+  }
   group_hierarchy = {
-    "aa"          = { visibility_level = "private" }
-    "aa/bb"       = { visibility_level = "private" }
-    "aa/cc"       = { visibility_level = "private" }
-    "aa/cc/dd"    = { visibility_level = "private" }
-    "aa/cc/dd/ee" = { visibility_level = "private" }
+    "aa"          = merge(local.group_default_settings, {  })
+    "aa/bb"       = merge(local.group_default_settings, {  })
+    "aa/cc"       = merge(local.group_default_settings, { path = "some-custom-path" })
+    "aa/cc/dd"    = merge(local.group_default_settings, {  })
+    "aa/cc/dd/ee" = merge(local.group_default_settings, {  })
   }
 }
 

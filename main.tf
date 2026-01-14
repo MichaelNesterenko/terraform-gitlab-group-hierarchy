@@ -11,7 +11,13 @@ locals {
   level_depth = var.parent_group_level != null ? var.parent_group_level.level_depth + 1 : 0
 
   parent_group_resources = var.parent_group_level != null ? var.parent_group_level.group_resources : {
-    "" : { id = data.gitlab_group.initial_group[0].id }
+    "" : {
+      id         = data.gitlab_group.initial_group[0].id
+      full_name  = data.gitlab_group.initial_group[0].full_name
+      path       = data.gitlab_group.initial_group[0].path
+      #runners_token = data.gitlab_group.initial_group[0].runners_token # sofar can not pass object with a sensitive value through for loops
+      web_url    = data.gitlab_group.initial_group[0].web_url
+    }
   }
   group_details_filtered = merge([
     for parent_full_name in keys(local.parent_group_resources) : {
@@ -32,7 +38,7 @@ resource "gitlab_group" "level_group" {
 
   parent_id = local.parent_group_resources[trimsuffix(each.key, regex("(?:^|/)[^/]+$", each.key))].id
   name      = local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key
-  path      = local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key
+  path      = each.value.path != null ? each.value.path : local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key
 
   allowed_email_domains_list = each.value.allowed_email_domains_list
   auto_devops_enabled        = each.value.auto_devops_enabled
@@ -106,6 +112,7 @@ variable "parent_group_level" {
 
 variable "group_details" {
   type = map(object({
+    path                       = optional(string)
     allowed_email_domains_list = optional(list(string))
     auto_devops_enabled        = optional(bool)
     avatar                     = optional(string)

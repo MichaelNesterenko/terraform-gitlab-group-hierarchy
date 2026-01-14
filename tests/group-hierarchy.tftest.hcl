@@ -24,6 +24,10 @@ run "validate-hierarchy" {
     error_message = "can not find group aa/cc"
   }
   assert {
+    condition     = module.gitlab_group_level_2.group_resources["aa/cc"].path == "some-custom-path"
+    error_message = "group aa/cc must have a custom path"
+  }
+  assert {
     condition     = module.gitlab_group_level_3.group_resources["aa/cc/dd"].id != null
     error_message = "can not find group aa/cc/dd"
   }

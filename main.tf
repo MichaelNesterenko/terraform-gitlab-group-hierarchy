@@ -103,14 +103,16 @@ check "input_variables" {
 variable "initial_group_id" {
   type        = number
   default     = null
-  description = "identifier of initial group which hosts all other sub groups"
+  description = "Identifier of initial gitlab group which hosts all other sub groups"
 }
 variable "parent_group_level" {
   type    = any
   default = null
+  description = "Output object from parent group level module"
 }
 
 variable "group_details" {
+  description = "Group details, passed through to gitlab_group resource (for more information please reference to https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/group#optional)"
   type = map(object({
     path                       = optional(string)
     allowed_email_domains_list = optional(list(string))

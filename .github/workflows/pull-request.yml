@@ -1,0 +1,9 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+
+jobs:
+  pull-workflow:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit

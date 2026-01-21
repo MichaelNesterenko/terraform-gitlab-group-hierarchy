@@ -12,6 +12,7 @@ This Terraform module manages hierarchical GitLab group structures with comprehe
 
 ```hcl
 locals {
+  initial_group_id = 12345
   group_details = {
     "engineering" = {
       description         = "Engineering group"
@@ -30,25 +31,46 @@ locals {
   }
 }
 
-module "group-hierarchy-0" {
+module "gitlab_group_level_0" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.3"
-  
-  initial_group_id = 123  # Root group ID
+  version = "0.0.4"
+
+  initial_group_id = local.initial_group_id
   group_details    = local.group_details
 }
-module "group-hierarchy-1" {
+module "gitlab_group_level_1" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.3"
-  
-  parent_group_level = module.group-hierarchy-0
+  version = "0.0.4"
+
+  parent_group_level = module.gitlab_group_level_0
   group_details      = local.group_details
 }
-module "group-hierarchy-2" {
+module "gitlab_group_level_2" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.3"
-  
-  parent_group_level = module.group-hierarchy-1
+  version = "0.0.4
+
+  parent_group_level = module.gitlab_group_level_1
+  group_details      = local.group_details
+}
+module "gitlab_group_level_3" {
+  source  = "ghostofthecode/group-hierarchy/gitlab"
+  version = "0.0.4
+
+  parent_group_level = module.gitlab_group_level_2
+  group_details      = local.group_details
+}
+module "gitlab_group_level_4" {
+  source  = "ghostofthecode/group-hierarchy/gitlab"
+  version = "0.0.4
+
+  parent_group_level = module.gitlab_group_level_3
+  group_details      = local.group_details
+}
+module "gitlab_group_level_5" {
+  source  = "ghostofthecode/group-hierarchy/gitlab"
+  version = "0.0.4
+
+  parent_group_level = module.gitlab_group_level_4
   group_details      = local.group_details
 }
 ```

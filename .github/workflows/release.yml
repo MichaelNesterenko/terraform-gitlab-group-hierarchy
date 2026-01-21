@@ -1,0 +1,37 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-test-workflow:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+  release-workflow:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      COMMIT_MESSAGE: "${{ github.event.head_commit.message }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - run: echo "${{ toJSON(github.event) }}"
+      - run: |
+          git log -1 --pretty=format:"%s"
+          IFS=. read major minor patch < <(git tag --list "*.*.*" | sort -V | tail -n1)
+          if grep -q "#major" <<< "${COMMIT_MESSAGE}"; then
+            major=$((major + 1))
+            minor=0
+            patch=0
+          elif grep -q "#minor" <<< "${COMMIT_MESSAGE}"; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          new_tag="${major}.${minor}.${patch}"
+          git tag "${new_tag}" && git push origin "${new_tag}"

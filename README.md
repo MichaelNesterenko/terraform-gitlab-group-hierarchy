@@ -13,21 +13,13 @@ This Terraform module manages hierarchical GitLab group structures with comprehe
 ```hcl
 locals {
   initial_group_id = 12345
+  group_default_settings = {
+    visibility_level = "private"
+  }
   group_details = {
-    "engineering" = {
-      description         = "Engineering group"
-      visibility_level    = "private"
-      auto_devops_enabled = true
-    }
-    "engineering/backend" = {
-      description                       = "Backend team"
-      require_two_factor_authentication = true
-      shared_runners_minutes_limit      = 10000
-    }
-    "engineering/backend/platform" = {
-      description          = "Platform team"
-      project_creation_level = "developer"
-    }
+    "engineering"                  = merge(local.group_default_settings, {  })
+    "engineering/backend"          = merge(local.group_default_settings, {  })
+    "engineering/backend/platform" = merge(local.group_default_settings, {  })
   }
 }
 
@@ -47,28 +39,28 @@ module "gitlab_group_level_1" {
 }
 module "gitlab_group_level_2" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.4
+  version = "0.0.4"
 
   parent_group_level = module.gitlab_group_level_1
   group_details      = local.group_details
 }
 module "gitlab_group_level_3" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.4
+  version = "0.0.4"
 
   parent_group_level = module.gitlab_group_level_2
   group_details      = local.group_details
 }
 module "gitlab_group_level_4" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.4
+  version = "0.0.4"
 
   parent_group_level = module.gitlab_group_level_3
   group_details      = local.group_details
 }
 module "gitlab_group_level_5" {
   source  = "ghostofthecode/group-hierarchy/gitlab"
-  version = "0.0.4
+  version = "0.0.4"
 
   parent_group_level = module.gitlab_group_level_4
   group_details      = local.group_details

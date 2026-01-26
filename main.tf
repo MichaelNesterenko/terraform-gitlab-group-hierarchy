@@ -12,11 +12,14 @@ locals {
 
   parent_group_resources = var.parent_group_level != null ? var.parent_group_level.group_resources : {
     "" : {
-      id         = data.gitlab_group.initial_group[0].id
-      full_name  = data.gitlab_group.initial_group[0].full_name
-      path       = data.gitlab_group.initial_group[0].path
+      id        = data.gitlab_group.initial_group[0].id
+      full_name = data.gitlab_group.initial_group[0].full_name
+      path      = data.gitlab_group.initial_group[0].path
+      full_path = data.gitlab_group.initial_group[0].full_path
+      name      = data.gitlab_group.initial_group[0].name
+      full_name = data.gitlab_group.initial_group[0].full_name
       #runners_token = data.gitlab_group.initial_group[0].runners_token # sofar can not pass object with a sensitive value through for loops
-      web_url    = data.gitlab_group.initial_group[0].web_url
+      web_url = data.gitlab_group.initial_group[0].web_url
     }
   }
   group_details_filtered = merge([
@@ -37,8 +40,8 @@ resource "gitlab_group" "level_group" {
   for_each = tomap(local.group_details_filtered)
 
   parent_id = local.parent_group_resources[trimsuffix(each.key, regex("(?:^|/)[^/]+$", each.key))].id
-  name      = local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key
-  path      = each.value.path != null ? each.value.path : local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key
+  name      = each.value.name != null ? each.value.name : (local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key)
+  path      = each.value.path != null ? each.value.path : (local.level_depth > 1 ? trimprefix(each.key, regex("^.*/", each.key)) : each.key)
 
   allowed_email_domains_list = each.value.allowed_email_domains_list
   auto_devops_enabled        = each.value.auto_devops_enabled
@@ -106,14 +109,15 @@ variable "initial_group_id" {
   description = "Identifier of initial gitlab group which hosts all other sub groups"
 }
 variable "parent_group_level" {
-  type    = any
-  default = null
+  type        = any
+  default     = null
   description = "Output object from parent group level module"
 }
 
 variable "group_details" {
   description = "Group details, passed through to gitlab_group resource (for more information please reference to https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/group#optional)"
   type = map(object({
+    name                       = optional(string)
     path                       = optional(string)
     allowed_email_domains_list = optional(list(string))
     auto_devops_enabled        = optional(bool)

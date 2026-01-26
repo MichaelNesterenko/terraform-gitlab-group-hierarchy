@@ -2,6 +2,12 @@ variables {
   initial_group_id = 122202060
 }
 
+run "query-infrastructure" {
+  module {
+    source = "./tests/query-infrastructure"
+  }
+}
+
 run "validate-hierarchy" {
   module {
     source = "./tests/setup-hierarchy"
@@ -24,8 +30,14 @@ run "validate-hierarchy" {
     error_message = "can not find group aa/cc"
   }
   assert {
-    condition     = module.gitlab_group_level_2.group_resources["aa/cc"].path == "some-custom-path"
+    condition = (module.gitlab_group_level_2.group_resources["aa/cc"].path == "some-custom-path" &&
+    module.gitlab_group_level_2.group_resources["aa/cc"].full_path == "${run.query-infrastructure.initial_group.path}/aa/some-custom-path")
     error_message = "group aa/cc must have a custom path"
+  }
+  assert {
+    condition = (module.gitlab_group_level_3.group_resources["aa/cc/dd"].name == "some-custom-name" &&
+    module.gitlab_group_level_3.group_resources["aa/cc/dd"].full_name == "${run.query-infrastructure.initial_group.name} / aa / cc / some-custom-name")
+    error_message = "group aa/cc/dd must have a custom name"
   }
   assert {
     condition     = module.gitlab_group_level_3.group_resources["aa/cc/dd"].id != null

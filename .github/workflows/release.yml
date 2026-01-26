@@ -21,7 +21,6 @@ jobs:
         with:
           fetch-depth: '0'
       - run: |
-          echo "Commit Message: ${COMMIT_MESSAGE}"
           IFS=. read major minor patch < <(git tag --list "*.*.*" | sort -V | tail -n1)
           if grep -q "#major" <<< "${COMMIT_MESSAGE}"; then
             major=$((major + 1))

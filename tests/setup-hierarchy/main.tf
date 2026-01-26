@@ -49,11 +49,11 @@ locals {
     visibility_level = "private"
   }
   group_hierarchy = {
-    "aa"          = merge(local.group_default_settings, {  })
-    "aa/bb"       = merge(local.group_default_settings, {  })
+    "aa"          = merge(local.group_default_settings, {})
+    "aa/bb"       = merge(local.group_default_settings, {})
     "aa/cc"       = merge(local.group_default_settings, { path = "some-custom-path" })
-    "aa/cc/dd"    = merge(local.group_default_settings, {  })
-    "aa/cc/dd/ee" = merge(local.group_default_settings, {  })
+    "aa/cc/dd"    = merge(local.group_default_settings, { name = "some-custom-name" })
+    "aa/cc/dd/ee" = merge(local.group_default_settings, {})
   }
 }
 

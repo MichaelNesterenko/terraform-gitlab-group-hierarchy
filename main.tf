@@ -12,14 +12,8 @@ locals {
 
   parent_group_resources = var.parent_group_level != null ? var.parent_group_level.group_resources : {
     "" : {
-      id        = data.gitlab_group.initial_group[0].id
-      full_name = data.gitlab_group.initial_group[0].full_name
-      path      = data.gitlab_group.initial_group[0].path
-      full_path = data.gitlab_group.initial_group[0].full_path
-      name      = data.gitlab_group.initial_group[0].name
-      full_name = data.gitlab_group.initial_group[0].full_name
-      #runners_token = data.gitlab_group.initial_group[0].runners_token # sofar can not pass object with a sensitive value through for loops
-      web_url = data.gitlab_group.initial_group[0].web_url
+      for key, value in data.gitlab_group.initial_group[0] : key => value
+      if ! contains(["runners_token", "shared_with_groups", "group_id"], key) # only common (with gitlab_group resource) & non sensitive attributes
     }
   }
   group_details_filtered = merge([
@@ -172,7 +166,12 @@ output "level_depth" {
   value = local.level_depth
 }
 output "group_resources" {
-  value = local.level_depth > 0 ? {
-    for full_name, details in local.group_details_filtered : full_name => gitlab_group.level_group[full_name]
-  } : local.parent_group_resources
+  value = merge(
+    local.parent_group_resources,
+    local.level_depth > 0 ? {
+      for full_name, details in local.group_details_filtered : full_name => {
+        for key in keys(local.parent_group_resources[""]) : key => gitlab_group.level_group[full_name][key]
+      }
+    } : {}
+  )
 }
